@@ -1,0 +1,185 @@
+﻿@model BookDBViewModel
+
+<div>
+    <label for="sl_user">Current User</label>
+    <select id="sl_user" name="User.UserID">
+        @foreach (var item in Model.UserList)
+        {
+            <option value="@item.UserID">@item.UserName</option>
+        }
+    </select>
+
+    <div id="divBookList">
+    </div>
+
+    <div>
+
+        <form action="book/create" method="post" id="form_submit">
+
+            <input type="hidden" id="hd_book_id" name="Book.BookID"/>
+
+            <input type="text" id="txt_book_title" name="Book.BookTitle" placeholder="Input Book Title" />
+            <input type="text" id="txt_book_description" name="Book.BookDescription" placeholder="Input book description" />
+            <input type="text" id="txt_book_quantity" name="Book.Quantity" value="0" placeholder="Input price"/>
+
+
+            <input type="submit" id="btn_submit_book" value="Submit" />
+            <input type="submit" id="btn_update_book" value="Update" />
+        </form>
+    </div>
+
+
+
+</div>
+
+
+@section scripts {
+
+<script>
+    // Vanila Javascript
+
+    async function submitBookForm(bookItem) {
+        //root: https://localhost:44361
+        //url di browser:
+        //https://localhost:44361/Food/
+        //Food/CreateFromAjax/
+        //hasil: https://localhost:44361/Food/Food/CreateFromAjax/
+
+        //url di browser:
+        // https://localhost:44361/Food/CreateFromAjax/
+        //
+        //hasil: https://localhost:44361/Food/CreateFromAjax/
+
+        const response = await fetch("../BookDB/CreateFromAjax",
+            {
+                method: "POST",
+                body: bookItem
+            }
+        );
+        const data = await response.json();
+        return data;
+    }
+
+
+    //method utk get HTML(partial view) dari controller
+    async function query_getBook(){
+        const response = await fetch("../BookDB/GetAllBook")
+        const data = await response.text();
+        return data;
+    }
+
+    async function query_deleteBook(bookId){
+        const response = await fetch("../BookDB/DeleteBook?bookId=" + bookId, {
+            method: "POST"
+        });
+        const data = await response.json();
+        return data;
+    }
+
+    async function query_updateBook(bookItem) {
+
+        const response = await fetch("../BookDB/UpdateBook/",
+            {
+                method: "POST",
+                body: bookItem
+            });
+        const data = await response.json();
+        return data;
+    }
+
+    async function query_borrowBook(borrowItem) {
+
+
+        const response = await fetch("../BookDB/BorrowBook/",
+            {
+                method: "POST",
+                body: borrowItem
+            });
+        const data = await response.json();
+        return data;
+    }
+
+
+
+    //main method utk update html kita
+    async function loadBookList(){
+        //data di sini isinya adalah HTMl dari partial view
+        const data = await query_getBook();
+        document.getElementById("divBookList").innerHTML = data;
+    }
+
+    document.getElementById("btn_submit_book").addEventListener("click",async function (e) {
+
+        e.preventDefault();
+
+        let myForm = document.getElementById('form_submit');
+        let formData = new FormData(myForm);
+        console.log(formData);
+        const ret = await submitBookForm(formData);
+        if (ret.status == false) {
+            alert(ret.message)
+        }
+
+
+
+        loadBookList();
+    });
+
+    document.getElementById("btn_update_book").addEventListener("click", async function (e) {
+        e.preventDefault();
+
+        let myForm = document.getElementById('form_submit');
+        let formData = new FormData(myForm);
+        console.log(formData);
+
+        for (var pair of formData.entries()) {
+            console.log(pair[0]+ ', ' + pair[1]); 
+        }
+        const ret = await query_updateBook(formData);
+
+        loadBookList();
+    })
+
+
+    async function deleteBook(bookId){
+        console.log(bookId);
+        await query_deleteBook(bookId);
+        loadBookList();
+
+    }
+
+    async function updateBook(bookId, bookTitle, bookDescription, bookQuantity) {
+        document.getElementById("hd_book_id").value = bookId;
+        document.getElementById("txt_book_title").value = bookTitle;
+        document.getElementById("txt_book_description").value = bookDescription;
+        document.getElementById("txt_book_quantity").value = bookQuantity;
+    }
+
+    async function borrowBook(bookId, bookQuantity) {
+        if (bookQuantity < 1){
+            alert("Book tidak tersedia");
+            return 0;
+        }
+        var userId = document.getElementById("sl_user").value ;
+        console.log(userId);
+        var formData = new FormData();
+        formData.append("Borrow.BookID", bookId);
+        formData.append("Borrow.UserID", userId);
+        console.log(formData);
+        for (var pair of formData.entries()) {
+            console.log(pair[0]+ ', ' + pair[1]); 
+        }
+        const ret = await query_borrowBook(formData);
+        alert("Success, silahkan cek di halaman buku");
+        loadBookList();
+
+
+    }
+
+    loadBookList();
+    //method binding
+    this.deleteBook = deleteBook;
+</script>
+
+}
+

@@ -1,0 +1,162 @@
+﻿@model BorrowDBViewModel
+
+<div>
+
+        <select id="sl_user" class="mb-2" name="Borrow.BorrowID">
+            <option value="" selected> Select user </option>
+        @foreach (var item in Model.UserList)
+        {
+            <option value="@item.UserID">@item.UserName</option>
+        }
+    </select>
+
+    <div id="divBorrowList">
+    </div>
+
+    <div>
+
+        <form action="borrow/create" method="post" id="form_submit">
+
+            <input type="hidden" id="hd_borrow_id" name="Borrow.BorrowID"/>
+
+            @*<input type="text" id="txt_user_id" name="Borrow.User.UserID" placeholder="Input User Id" />*@
+            @*<input type="text" id="txt_borrow_price" name="Borrow.Price" value="0" placeholder="Input price"/>*@
+
+
+
+            <input type="hidden" id="btn_get_borrow" value="Submit" />
+            <input type="hidden" id="btn_submit_borrow" value="Submit" />
+            <input type="hidden" id="btn_update_borrow" value="Update" />
+        </form>
+    </div>
+
+
+
+</div>
+
+
+@section scripts {
+
+<script>
+    // Vanila Javascript
+    document.getElementById("sl_user").addEventListener("change",async function (e){
+        console.log("aaaaaa");
+        let userId = this.value;
+        if (userId == ""){
+            document.getElementById("divBorrowList").innerHTML = "";
+            return;
+        }
+        const ret = await query_getBorrow(userId);
+
+        document.getElementById("divBorrowList").innerHTML = ret;
+        loadBorrowList();
+    })
+
+
+    async function submitBorrowForm(borrowItem) {
+        //root: https://localhost:44361
+        //url di browser:
+        //https://localhost:44361/Borrow/
+        //Borrow/CreateFromAjax/
+        //hasil: https://localhost:44361/Borrow/Borrow/CreateFromAjax/
+
+        //url di browser:
+        // https://localhost:44361/Borrow/CreateFromAjax/
+        //
+        //hasil: https://localhost:44361/Borrow/CreateFromAjax/
+
+        const response = await fetch("../BorrowDB/CreateFromAjax",
+            {
+                method: "POST",
+                body: borrowItem
+            }
+        );
+        const data = await response.json();
+        return data;
+    }
+
+
+    //method utk get HTML(partial view) dari controller
+    async function query_getBorrow(userId){
+        const response = await fetch("../BorrowDB/GetBorrowFromUser?UserId="+ userId);
+        const data = await response.text();
+
+        return data;
+    }
+
+    async function query_deleteBorrow(borrowId){
+        const response = await fetch("../BorrowDB/DeleteBorrow?borrowId=" + borrowId, {
+            method: "POST"
+        });
+        const data = await response.json();
+        return data;
+    }
+
+    async function query_updateBorrow(borrowItem) {
+        const response = await fetch("../BorrowDB/UpdateBorrow/",
+            {
+                method: "POST",
+                body: borrowItem
+            });
+        const data = await response.json();
+        return data;
+    }
+
+
+
+    //main method utk update html kita
+    async function loadBorrowList(){
+        //data di sini isinya adalah HTMl dari partial view
+        //const data = await query_getBorrow();
+        //document.getElementById("divBorrowList").innerHTML = data;
+    }
+
+    document.getElementById("btn_submit_borrow").addEventListener("click",async function (e) {
+
+        e.preventDefault();
+
+        let myForm = document.getElementById('form_submit');
+        let formData = new FormData(myForm);
+        const ret = await submitBorrowForm(formData);
+        if (ret.status == false) {
+            alert(ret.message)
+        }
+
+
+
+        loadBorrowList();
+    });
+
+    document.getElementById("btn_update_borrow").addEventListener("click", async function (e) {
+        e.preventDefault();
+
+        let myForm = document.getElementById('form_submit');
+        let formData = new FormData(myForm);
+
+
+        const ret = await query_updateBorrow(formData);
+
+        loadBorrowList();
+    })
+
+
+    async function deleteBorrow(borrowId){
+        console.log(borrowId);
+        await query_deleteBorrow(borrowId);
+        loadBorrowList();
+
+    }
+
+    async function updateBorrow(borrowId, borrowName, borrowPrice, chefId) {
+        document.getElementById("hd_borrow_id").value = borrowId;
+        document.getElementById("txt_borrow_name").value = borrowName;
+        document.getElementById("txt_borrow_price").value = borrowPrice;
+        document.getElementById("sl_chef").value = chefId;
+    }
+
+    //method binding
+    this.deleteBorrow = deleteBorrow;
+</script>
+
+}
+

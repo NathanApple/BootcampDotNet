@@ -1,0 +1,45 @@
+﻿@model Bootcamp1.ViewModels.UserViewModel
+<div class="text-center">
+    <h1 class="display-4">Page User</h1>
+    <div>
+
+        @{
+            foreach (UserModel user in @Model.Users)
+            {
+                <div>@user.UserName &emsp; <button type="button" onclick="fetchUser(@user.UserID)">Get Detail</button></div>
+            }
+        }
+
+    </div>
+
+    <div id="detail">
+        <div>User detail: </div>
+        <div id="name"></div>
+        <div id="ranking"></div>
+        <div id="dateOfBirth"></div>
+    </div>
+
+</div>
+
+@section scripts{
+
+<script>
+    (async () => {
+        const fetchUser = async (id) => {
+            const response = await fetch("User/GetUser?id=" + id);
+            const data = await response.json();
+            console.log(data);
+            console.log("asdasdasdf");
+            if (data) {
+                document.getElementById("name").innerHTML = data.userName;
+                document.getElementById("ranking").innerHTML = data.ranking;
+                document.getElementById("dateOfBirth").innerHTML = data.birthDateString;
+
+            }
+        }
+
+        this.fetchUser = fetchUser;
+    })();
+
+</script>
+}

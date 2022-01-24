@@ -1,0 +1,34 @@
+﻿@model FoodViewModel
+@{
+    Layout = null;
+}
+<div>
+
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th scope="col">Food ID</th>
+                <th scope="col">Food Name</th>
+                <th scope="col">Food Price</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model.FoodList)
+            {
+                <tr>
+                    <td>@item.FoodID</td>
+                    <td>@item.FoodName</td>
+                    <td>@item.Price</td>
+                    <td>
+                        <button class="btn btn-warning" type="button" onclick="deleteFood(@item.FoodID)">Delete</button>
+                        <button class="btn btn-danger" type="button" onclick="updateFood(@item.FoodID, '@item.FoodName', @item.Price)">Update</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

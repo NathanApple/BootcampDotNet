@@ -1,0 +1,35 @@
+﻿@model BorrowDBViewModel
+@{
+    Layout = null;
+}
+<div>
+
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th scope="col">Borrow ID</th>
+                <th scope="col">Book Title</th>
+                <th scope="col">Book Description</th>
+                @*Change to Book Name*@
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model.BorrowList)
+            {
+                <tr>
+                    <td>@item.BorrowID</td>
+                    <td>@item.BookTitle</td>
+                    <td>@item.BookDescription</td>
+                    <td> #
+@*                        <button class="btn btn-warning" type="button" onclick="deleteFood(@item.FoodID)">Delete</button>
+                        <button class="btn btn-danger" type="button" onclick="updateFood(@item.FoodID, '@item.FoodName', @item.Price, @item.ChefID)">Update</button>
+*@                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

@@ -1,0 +1,37 @@
+﻿@model BookDBViewModel
+@{
+    Layout = null;
+}
+<div>
+
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th scope="col">Book ID</th>
+                <th scope="col">Book Title</th>
+                <th scope="col">Book Description</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model.BookList)
+            {
+                <tr>
+                    <td>@item.BookID</td>
+                    <td>@item.BookTitle</td>
+                    <td>@item.BookDescription</td>
+                    <td>@item.Quantity</td>
+                    <td>
+                        <button class="btn btn-primary" type="button" onclick="borrowBook(@item.BookID, @item.Quantity)">Borrow</button>
+                        <button class="btn btn-warning" type="button" onclick="updateBook(@item.BookID, '@item.BookTitle', '@item.BookDescription', @item.Quantity)">Update</button>
+                        <button class="btn btn-danger" type="button" onclick="deleteBook(@item.BookID)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>
